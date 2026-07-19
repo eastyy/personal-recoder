@@ -1,0 +1,114 @@
+#!/usr/bin/env bash
+#
+# .githooks/pre-commit
+#
+# 强制纪律：每次 commit 前必须同步更新 CHANGELOG.md
+#
+# 工作原理：
+#   1. 读取 staged 文件列表
+#   2. 如果只包含「豁免」类别（文档/hook 自身/元配置），不强制
+#   3. 否则要求 CHANGELOG.md 也必须 staged
+#
+# 豁免类别（不需要 CHANGELOG 更新）：
+#   - CHANGELOG.md 本身
+#   - README.md / AGENTS.md（文档）
+#   - .hermes/（项目交接记录）
+#   - docs/（设计文档）
+#   - .githooks/（hook 自身变更）
+#   - scripts/install-hooks.sh（hook 安装脚本）
+#   - .gitignore（仓库元配置）
+#
+# 紧急绕过：git commit --no-verify
+#
+
+set -euo pipefail
+
+CHANGELOG="CHANGELOG.md"
+
+# 颜色
+if [ -t 1 ]; then
+    C_RED='\033[0;31m'
+    C_GREEN='\033[0;32m'
+    C_YELLOW='\033[0;33m'
+    C_BOLD='\033[1m'
+    C_RESET='\033[0m'
+else
+    C_RED=''; C_GREEN=''; C_YELLOW=''; C_BOLD=''; C_RESET=''
+fi
+
+# 读取 staged 文件列表（去掉空行）
+staged=$(git diff --cached --name-only --diff-filter=ACMR | sed '/^$/d')
+
+# 没有任何 staged 文件（理论上不应该发生，pre-commit 默认会拦截）
+if [ -z "$staged" ]; then
+    exit 0
+fi
+
+# 检查 CHANGELOG.md 是否被 staged
+changelog_staged=0
+if echo "$staged" | grep -Fxq "$CHANGELOG"; then
+    changelog_staged=1
+fi
+
+# 豁免文件 pattern（POSIX ERE）
+# 注意：CHANGELOG.md 自身也算豁免（如果你只想更新 CHANGELOG 就提交）
+exempt_pattern='^(CHANGELOG\.md|README\.md|AGENTS\.md|\.hermes/|docs/|\.githooks/|scripts/install-hooks\.sh|\.gitignore)$'
+
+# 判断是否有「非豁免」文件被 staged
+needs_changelog=0
+non_exempt_files=()
+while IFS= read -r file; do
+    [ -z "$file" ] && continue
+    if ! echo "$file" | grep -qE "$exempt_pattern"; then
+        needs_changelog=1
+        non_exempt_files+=("$file")
+    fi
+done <<< "$staged"
+
+# 如果不需要 CHANGELOG，放行
+if [ "$needs_changelog" -eq 0 ]; then
+    exit 0
+fi
+
+# 如果需要但 CHANGELOG 已被 staged，放行
+if [ "$changelog_staged" -eq 1 ]; then
+    exit 0
+fi
+
+# 否则：拒绝 commit
+cat >&2 <<EOF
+${C_RED}${C_BOLD}❌ 提交被拒绝：检测到代码变更，但 ${CHANGELOG} 未更新${C_RESET}
+
+${C_BOLD}本项目的纪律${C_RESET}：每次 commit 前必须同步更新 ${CHANGELOG} 的 [Unreleased] 段落。
+
+${C_BOLD}本次 commit 涉及以下「需要记录」的文件${C_RESET}（最多显示 10 个）：
+EOF
+
+# 最多显示 10 个非豁免文件
+shown=0
+for f in "${non_exempt_files[@]}"; do
+    if [ "$shown" -ge 10 ]; then
+        echo "  ... 共 ${#non_exempt_files[@]} 个" >&2
+        break
+    fi
+    echo "  ${C_YELLOW}•${C_RESET} $f" >&2
+    shown=$((shown + 1))
+done
+
+cat >&2 <<EOF
+
+${C_BOLD}正确做法${C_RESET}：
+  1. 编辑 ${CHANGELOG}
+  2. 在 [Unreleased] 段落下添加本次变更（Added / Changed / Fixed / Removed / Security）
+  3. ${C_GREEN}git add ${CHANGELOG}${C_RESET}
+  4. 重新执行 git commit
+
+${C_BOLD}紧急绕过${C_RESET}（请三思，通常不值得）：
+  ${C_YELLOW}git commit --no-verify -m "..."${C_RESET}
+
+${C_BOLD}豁免类别${C_RESET}（这些文件变更不需要更新 ${CHANGELOG}）：
+  README.md / AGENTS.md / ${CHANGELOG} / .hermes/ / docs/
+  .githooks/ / scripts/install-hooks.sh / .gitignore
+EOF
+
+exit 1

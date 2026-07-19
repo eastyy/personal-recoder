@@ -6,6 +6,19 @@
 
 ---
 
+## 📚 文档索引
+
+| 文档 | 受众 | 内容 |
+|------|------|------|
+| **README.md**（你正在读的） | 用户 / 开发者 | 项目介绍 + 架构 + 构建步骤 |
+| [AGENTS.md](AGENTS.md) | **AI agents** | 5 分钟上手指南 + 关键技术决策 + 任务模板 |
+| [CHANGELOG.md](CHANGELOG.md) | 所有人 | 版本变更历史（每次 commit 前必更新） |
+| [docs/2026-06-07-personal-log-ai-design.md](docs/2026-06-07-personal-log-ai-design.md) | 开发者 | 原始设计文档（1402 行） |
+| [.hermes/handover.md](.hermes/handover.md) | 接手者 | 完整项目交接（签名方案、坑） |
+| [.hermes/project.md](.hermes/project.md) | 接手者 | 项目上下文 |
+
+---
+
 ## ✨ 核心功能
 
 - 🖮 **全量输入采集** - 键盘、鼠标、剪贴板、应用切换、IME 中文输入
@@ -114,6 +127,9 @@ bash scripts/setup-squirrel.sh
 cd personal-log-ai
 npm install
 cd ..
+
+# （强烈推荐）安装 git hooks，强制 commit 前更新 CHANGELOG.md
+bash scripts/install-hooks.sh
 ```
 
 ### 开发模式
@@ -136,6 +152,50 @@ npm run tauri build
 ```bash
 cd squirrel-ime
 bash build-and-install.sh
+```
+
+---
+
+## 🔧 Git 工作流
+
+### 每次 commit 前必更新 CHANGELOG.md
+
+本项目配了 **pre-commit hook**：如果你改了代码但没更新 `CHANGELOG.md`，commit 会被拒绝。
+
+正确做法：
+
+```bash
+# 1. 写代码
+vim personal-log-ai/src/foo.ts
+
+# 2. 更新 CHANGELOG.md（必须！）
+vim CHANGELOG.md
+# 在 [Unreleased] 段落下加：
+#   ### Added
+#   - 你的功能描述
+
+# 3. 提交
+git add .
+git commit -m "feat: 新功能"
+git push
+```
+
+紧急绕过（**请三思**）：
+
+```bash
+git commit --no-verify -m "hotfix: 紧急修复"
+```
+
+### 首次 clone 后启用 hooks
+
+```bash
+bash scripts/install-hooks.sh
+```
+
+卸载（如不需要强制）：
+
+```bash
+bash scripts/install-hooks.sh --uninstall
 ```
 
 ⚠️ Squirrel 是 **系统级输入法**（`/Library/Input Methods/Squirrel.app`），安装会修改系统状态，需要 sudo 权限。详见 `squirrel-ime/INSTALL.md`。
