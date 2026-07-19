@@ -78,3 +78,14 @@ squirrel-ime/librime          # 上游 librime C++ 源码（由 setup-squirrel.s
 squirrel-ime/plum             # 上游 plum 配置工具（由 setup-squirrel.sh 拉取）
 squirrel-ime/Sparkle          # 上游 Sparkle 更新框架（由 setup-squirrel.sh 拉取）
 
+
+# ========== Git 自身 ==========
+.git/
+.git.backup*/
+.git.orig
+.git.recover/
+
+# 防御性：避免历史清理时的临时文件入库
+*.orig
+*.rej
+.gitignore.bak

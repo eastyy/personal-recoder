@@ -27,6 +27,7 @@
 - **🚨 火山方舟 API Key 泄漏修复**：在 `.hermes/handover.md` 和 `.hermes/project.md` 中发现并删除了明文 API Key（`<REDACTED-volcengine-api-key>`），并使用 `git filter-branch` 重写了所有 git 历史以彻底清除该 key
 - **⚠️ 必须作的额外动作**（用户手动）：在火山方舟控制台（https://console.volcengine.com/）轮换作废旧 key，并生成新 key。新 key 仅通过 UI 设置面板输入，**永远不要**提交到 git
 - 强化文档：`AGENTS.md` 的「禁忌」部分明确添加「绝不提交 API Key」纪律
+- `.gitignore` 新增 `.git.backup*/`、`.git.orig`、`.git.recover/` 防御性规则（避免 history cleanup 临时文件被误纳）
 
 ---
 
