@@ -193,6 +193,10 @@ Tauri Rust: ime_ipc.rs 接收
 ## ⛔ 禁忌 / Don'ts
 
 **绝不能做**：
+- ❌ **提交任何 API Key、Token、Secret、密码到 git**（包括「临时」放到 `.hermes/` / `docs/` / README 里思考）
+  - 即使仓库是 private，即使你觉得“以后会删”
+  - 本项目 2026-07 踩过这个坑：`.hermes/handover.md` 里写了火山方舟 key，`git filter-branch` 才清除干净
+  - **正确做法**：Key 只存在 `data.db` 的 `app_config` 表（运行时）或本地 `.env`（已 gitignore）
 - ❌ 提交 `*.db` 文件（用户输入历史）
 - ❌ 提交 `*.pem` / `*.key` / `*.env` / `credentials.json` 等密钥文件
 - ❌ 修改 IPC socket 路径 `/tmp/personal-log-ai-ime.sock`（会断链）
@@ -204,6 +208,13 @@ Tauri Rust: ime_ipc.rs 接收
 - ⚠️ 不要改 Rust crate name `personal-log-ai` / npm package name `personal-log-ai`（源码标识，能改但意义不大）
 - ⚠️ 不要用 `git add .` 加 `target/`（4.2 GB）—— `.gitignore` 已挡，但如果手动 `git add -f` 会绕过
 - ⚠️ 不要在没有更新 CHANGELOG.md 的情况下 commit（hook 会阻止，但可用 `--no-verify` 绕过——**请不要绕过**）
+
+**发现密钥泄漏的应急流程**：
+1. 立即删除文件中的明文 key（替换为 placeholder）
+2. `git filter-branch` 重写历史（参考本仓库 2026-07 的修复）
+3. force push 到远端
+4. **在提供商控制台轮换 key**（这是唯一能阻止已泄漏 key 被滥用的步骤）
+5. 在 CHANGELOG.md 记录该事件
 
 ---
 
