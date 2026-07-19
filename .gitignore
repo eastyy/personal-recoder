@@ -1,0 +1,80 @@
+# ========== macOS 系统文件 ==========
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# ========== 编辑器 / IDE ==========
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.bak
+*.orig
+*.rej
+.metadata/
+.cproject
+.project
+.settings/
+.classpath
+
+# ========== Node / 前端构建产物 ==========
+node_modules/
+dist/
+.vite/
+.parcel-cache/
+.next/
+.nuxt/
+*.tsbuildinfo
+.eslintcache
+.npm/
+.yarn/
+.pnp.*
+coverage/
+
+# ========== Rust / Tauri 构建产物 ==========
+**/src-tauri/target/
+**/src-tauri/Cargo.lock.bak
+**/src-tauri/gen/schemas/
+**/target/
+
+# ========== Xcode / macOS 应用构建产物 ==========
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+*.moved-aside
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+.build/
+.build/
+.builds/
+
+# ========== squirrel-ime 精简 ==========
+squirrel-ime/build/
+squirrel-ime/Frameworks/
+squirrel-ime/lib/
+squirrel-ime/bin/
+squirrel-ime/download/
+squirrel-ime/librime_dist_backup/
+squirrel-ime/librime          # 上游 librime C++ 源码（由 setup-squirrel.sh 拉取）
+squirrel-ime/plum             # 上游 plum 配置工具（由 setup-squirrel.sh 拉取）
+squirrel-ime/Sparkle          # 上游 Sparkle 更新框架（由 setup-squirrel.sh 拉取）
+
