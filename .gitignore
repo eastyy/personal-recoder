@@ -89,3 +89,8 @@ squirrel-ime/Sparkle          # 上游 Sparkle 更新框架（由 setup-squirrel
 *.orig
 *.rej
 .gitignore.bak
+
+# ========== 个人笔记（不再入库，仅本地保留） ==========
+# .hermes/ 目录是项目交接记录，可能含敏感信息（API key 历史、签名命令、个人工作模式）
+# 已经过 audit 的清洁版本在 git 历史中保留，后续不再更新
+.hermes/

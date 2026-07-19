@@ -82,10 +82,11 @@ personal-recoder/
 │
 ├── scripts/
 │   ├── setup-squirrel.sh      ← 拉取 librime/plum/Sparkle
-│   └── install-hooks.sh       ← 配置 git hooks 路径
+│   ├── install-hooks.sh       ← 配置 git hooks 路径
+│   └── scan-secrets.sh        ← 扫描 20+ 种 API Key 格式（被 pre-commit 调用）
 │
 ├── .githooks/
-│   └── pre-commit             ← 强制 CHANGELOG.md 同步更新
+│   └── pre-commit             ← 双重检查：(1) 密钥扫描 (2) CHANGELOG.md 同步更新
 │
 ├── docs/
 │   └── 2026-06-07-personal-log-ai-design.md   ← 原始设计文档（1402 行）
@@ -131,6 +132,7 @@ Tauri Rust: ime_ipc.rs 接收
 - **用户输入历史** 也在同一个 db 文件
 - **不要 commit `*.db`** —— `.gitignore` 已默认排除
 - **改 API Key**：UI 设置面板输入，不要改任何 .ts/.rs 文件
+- **个人项目交接笔记**（`.hermes/`）已在 2026-07-19 从 git 移除（参见 [SECURITY.md](SECURITY.md) 的「2026-07-19 事件复盘」）
 
 ### 3. Squirrel 系统级安装
 
@@ -216,6 +218,8 @@ Tauri Rust: ime_ipc.rs 接收
 4. **在提供商控制台轮换 key**（这是唯一能阻止已泄漏 key 被滥用的步骤）
 5. 在 CHANGELOG.md 记录该事件
 
+完整流程见 [SECURITY.md](SECURITY.md)。
+
 ---
 
 ## 📚 详细文档（按需查阅）
@@ -224,9 +228,9 @@ Tauri Rust: ime_ipc.rs 接收
 |---|---|---|
 | [README.md](README.md) | 用户面向的架构 + 构建步骤 | 用户问"怎么装"时 |
 | [CHANGELOG.md](CHANGELOG.md) | 版本变更历史 | 写版本发布说明时 |
+| [SECURITY.md](SECURITY.md) | 密钥管理规范 + 应急响应流程 | 发现 / 怀疑泄漏时 |
 | [docs/2026-06-07-personal-log-ai-design.md](docs/2026-06-07-personal-log-ai-design.md) | 原始设计文档（1402 行） | 理解早期设计决策时 |
-| [.hermes/handover.md](.hermes/handover.md) | 完整项目交接（签名方案、坑） | 调试 Squirrel / 签名问题时 |
-| [.hermes/project.md](.hermes/project.md) | 项目上下文 + 工作模式 | 理解「为什么这么设计」时 |
+| `.hermes/`（本地） | 个人项目交接笔记（仅本地，2026-07-19 起不入库） | 调试 Squirrel / 签名问题时 |
 
 ---
 

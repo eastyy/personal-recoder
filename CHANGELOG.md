@@ -10,24 +10,40 @@
 ## [Unreleased]
 
 ### Added
-- **`CHANGELOG.md`**：Keep a Changelog 格式的版本变更记录，规定每次 commit 前必须更新
+- **`CHANGELOG.md`**：Keep a Changelog 格式的版本变更记录，规定每次 commit 前必更新
 - **`AGENTS.md`**：面向任何 AI agent（Claude Code、Pi、Cursor、Aider 等）的精简交接文档
   - 覆盖项目概述、快速开始、仓库结构、关键技术决策（IME IPC 机制）、常见任务、禁忌
+- **`SECURITY.md`**：安全策略文档（密钥管理规范、应急流程、事件复盘）
 - **Git 工作流纪律**
-  - `.githooks/pre-commit`：强制要求代码变更同步更新 `CHANGELOG.md`，否则拒绝 commit
+  - `.githooks/pre-commit`：双重检查 (1) 密钥扫描 (2) CHANGELOG.md 同步更新，否则拒绝 commit
+  - `scripts/scan-secrets.sh`：扫描 20+ 种 API Key 格式（OpenAI / Anthropic / AWS / Google / GitHub / Volcengine / Stripe / Slack / GitLab / SendGrid / Mailgun / 通用 Bearer Token 等）
   - `scripts/install-hooks.sh`：一键启用 git hooks（设置 `core.hooksPath = .githooks`）
   - 紧急绕过：`git commit --no-verify`
 
 ### Changed
-- **`README.md`**：新增「文档索引」表格（README / AGENTS / CHANGELOG / 设计文档 / 项目交接）
+- **`README.md`**：新增「文档索引」表格（README / AGENTS / CHANGELOG / SECURITY / 设计文档）
 - **`README.md`**：在「快速开始」中增加 `bash scripts/install-hooks.sh` 步骤
 - **`README.md`**：新增「Git 工作流」章节，说明 CHANGELOG.md 纪律和 hooks 用法
+- **`AGENTS.md`**：加入 SECURITY.md 引用，文档索引表中标明 `.hermes/` 为本地笔记
+- `.gitignore`：增加 `.hermes/` 排除规则（个人项目交接笔记，仅本地保留）
+
+### Removed
+- **`.hermes/` 从 git 索引移除**：`handover.md` 和 `project.md` 不再入库（本地保留）
+  - 这些文件可能含签名命令、个人工作模式等隐私信息
+  - 2026-07-19 起改为本地笔记
 
 ### Security
-- **🚨 火山方舟 API Key 泄漏修复**：在 `.hermes/handover.md` 和 `.hermes/project.md` 中发现并删除了明文 API Key（`<REDACTED-volcengine-api-key>`），并使用 `git filter-branch` 重写了所有 git 历史以彻底清除该 key
-- **⚠️ 必须作的额外动作**（用户手动）：在火山方舟控制台（https://console.volcengine.com/）轮换作废旧 key，并生成新 key。新 key 仅通过 UI 设置面板输入，**永远不要**提交到 git
-- 强化文档：`AGENTS.md` 的「禁忌」部分明确添加「绝不提交 API Key」纪律
-- `.gitignore` 新增 `.git.backup*/`、`.git.orig`、`.git.recover/` 防御性规则（避免 history cleanup 临时文件被误纳）
+- **🚨 火山方舟 API Key 泄漏修复（在 .hermes/ 中）**：发现并删除明文 API Key，并用 `git filter-branch` 重写所有 git 历史
+- **🚨 第二次泄漏（仓库误设为 public）**：filter-branch + force-push 不能清除 GitHub 内部存储的旧 commit 对象
+  - 旧 commit `b865233` 仍可通过直链访问，包含完整 key 值
+  - 应对：仓库将「删除重建」（这是唯一可靠方案）
+- **⚠️ 用户必作手动动作**：
+  - 在火山方舟控制台（https://console.volcengine.com/ark）轮换作废旧 Key
+  - 检查旧 Key 的使用日志看是否有异常调用
+- **新增自动化防护**：
+  - `scripts/scan-secrets.sh` 在每次 commit 前自动扫描
+  - `.githooks/pre-commit` 集成扫描 + CHANGELOG 检查
+  - `.hermes/` 不再入库（防御性）
 
 ---
 
